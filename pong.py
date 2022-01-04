@@ -1,6 +1,3 @@
-#!/home/projects/python/spec_effects/env/bin/python3
-
-
 import pgzrun as pgr
 import pgzero as pgz
 import pygame as pg
