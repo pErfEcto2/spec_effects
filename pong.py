@@ -9,7 +9,7 @@ botMaxSpeed = 10
 r = 10 # circle radius
 score = pg.Vector2(0, 0)
 k = 20 # decrease circle vertical acceleration
-maxScore = 10
+maxScore = 1
 start = True
 run = False
 rectSize = pg.Vector2(10, 150)
@@ -27,7 +27,7 @@ circlePos = pg.Vector2(WIDTH / 2, HEIGHT / 2)
 circleVel = pg.Vector2(maxSpeed, ran.randint(-maxSpeed, maxSpeed))
 
 def on_key_down(key):
-    global moveDown, moveUp, win, score, lose, circlePos, circleVel, start, run
+    global moveDown, moveUp, win, score, lose, circlePos, circleVel, start, run, userRectPos, botRectPos
     if key == pgz.keyboard.keys.UP and not (win or lose):
         moveUp = True
         moveDown = False
@@ -43,10 +43,15 @@ def on_key_down(key):
             score = pg.Vector2(0, 0)
             circlePos = pg.Vector2(WIDTH / 2, HEIGHT / 2)
             circleVel = pg.Vector2(maxSpeed, ran.randint(-maxSpeed, maxSpeed))
+            userRectPos = pg.Vector2(5, HEIGHT / 2 - rectSize[1] / 2)
+            botRectPos = pg.Vector2(WIDTH - rectSize[0] - 5, HEIGHT / 2 - rectSize[1] / 2)
+            
 
         elif start:
             start = False
             run = True
+            win = False
+            lose = False
             
     elif key == pgz.keyboard.keys.ESCAPE:
         exit()
@@ -135,7 +140,6 @@ def draw():
         screen.draw.text("PRESS ENTER TO CONTINUE", (WIDTH / 2 - 200, HEIGHT / 2 + 70), fontsize=40)
         win = True
         lose = False
-        run = False
     
     elif score[1] >= maxScore:
         screen.draw.text("YOU LOSE", (WIDTH / 2 - 130, HEIGHT / 2 - 50), fontsize=70, color=RED)
@@ -143,7 +147,6 @@ def draw():
         screen.draw.text("PRESS ENTER TO CONTINUE", (WIDTH / 2 - 200, HEIGHT / 2 + 70), fontsize=40)
         lose = False
         lose = True
-        ran = False
     
     elif not start:
         screen.draw.filled_circle(pos=circlePos, radius=r, color=WHITE)
