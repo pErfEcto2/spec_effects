@@ -1,22 +1,39 @@
-import pgzrun as pgr
-import pgzero as pgz
-import pygame as pg
 import random as ran
-import os
+import pgzero as pgz
+import pgzrun as pgr
+import pygame as pg
 import lib
-from lib import WIDTH, HEIGHT, DEPTH, LENGTH
-import math
+from lib import HEIGHT, WIDTH
 
+a = 10
+f = pg.Vector2(0, 50)
 
-w = lib.Walker3D(pg.Vector3(WIDTH / 2, HEIGHT / 2, DEPTH / 2), 50, pg.Vector3(WIDTH, HEIGHT, DEPTH))
+circles = []
+for _ in range(100):
+    circles.append(lib.Circle(pg.Vector2(WIDTH * ran.random(), HEIGHT * ran.random()), ran.randint(5000, 10000)))
+
+def on_key_down(key):
+    global f, a
+    if key == pgz.keyboard.keys.A:
+        f.x += -a
+    if key == pgz.keyboard.keys.D:
+        f.x += a
 
 def update():
-    w.move()
-    pass
+    global f, circles
+
+    for circle in circles:
+        circle.accelerate(f)
+        circle.move()
+
 
 def draw():
+    global circles, f
     screen.fill((0, 0, 0))
-    w.modRadius()
-    screen.draw.filled_circle(pos=w.getPos(), radius=w.getVisibleRadius(), color=w.getColor())
+
+    for circle in circles:
+        circle.draw(screen)
+        circle.drawSpeed(screen)
+
 
 pgr.go()

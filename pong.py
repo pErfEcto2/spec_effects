@@ -2,14 +2,14 @@ import pgzrun as pgr
 import pgzero as pgz
 import pygame as pg
 import random as ran
-from   lib import WIDTH, HEIGHT, WHITE, GREEN, RED
+from lib import WIDTH, HEIGHT, WHITE, GREEN, RED
 
 maxSpeed = 15
 botMaxSpeed = 10
 r = 10 # circle radius
 score = pg.Vector2(0, 0)
 k = 20 # decrease circle vertical acceleration
-maxScore = 1
+maxScore = 10
 start = True
 run = False
 rectSize = pg.Vector2(10, 150)
