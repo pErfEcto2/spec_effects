@@ -36,11 +36,11 @@ def update():
             createPartExpl(fireParticles, 10, expl.getPos())
             fires.pop(i)
     
-    for j, fire in enumerate(fireParticles):
-        if fire.getFrames() < frameLimit:
-            fire.move()
-        else:
-            fireParticles.pop(j)
+    #for j, fire in enumerate(fireParticles):
+    #    if fire.getFrames() < frameLimit:
+    #        fire.move()
+    #    else:
+    #        fireParticles.pop(j)
     
     print(len(fires), len(fireParticles))
 

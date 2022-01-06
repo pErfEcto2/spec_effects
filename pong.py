@@ -98,7 +98,7 @@ def update():
             dy = (circlePos[1] + r) - (userRectPos[1] + rectSize[1] / 2) 
             circleVel[1] += dy / k
 
-        if botRect.colliderect(pgz.rect.Rect(circlePos, (2 * r, 2 * r))):
+        if  botRect.colliderect(pgz.rect.Rect(circlePos, (2 * r, 2 * r))):
             circleVel[0] *= -1
             circlePos[0] = botRectPos[0] - 2 * r + 5
             dy = (circlePos[1] + r) - (userRectPos[1] + rectSize[1] / 2) 

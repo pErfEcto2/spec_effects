@@ -104,9 +104,18 @@ class Walker2D():
         self.v += self.g
         self.pos += self.v
 
-        if self.pos.x + self.radius >= self.box_size.x or self.pos.x - self.radius<= 0:
+        if self.pos.x + self.r >= WIDTH:
+            self.pos.x = WIDTH - self.r
             self.v.x *= -1
-        if self.pos.y + self.radius >= self.box_size.y or self.pos.y - self.radius <= 0:
+        if self.pos.x - self.r <= 0:
+            self.pos.x = self.r
+            self.v.x *= -1
+
+        if self.pos.y + self.r >= HEIGHT:
+            self.pos.y = HEIGHT - self.r
+            self.v.y *= -1
+        if self.pos.y - self.r <= 0:
+            self.pos.y = self.r
             self.v.y *= -1
         
         if self.fade:
@@ -134,18 +143,33 @@ class Walker2D():
         return self.v
 
 class Circle():
-    def __init__(self, pos: pg.Vector2, m: int) -> None:
+    def __init__(self, pos: pg.Vector2, m: int, maxSp: int, v: pg.Vector2 = None, r: int = None) -> None:
         self.pos = pos
         self.mass = m
         self.acc = pg.Vector2(0, 0)
-        self.v = pg.Vector2(0, 0)
-        self.r = m / 1000
-        self.color = WHITE
+
+        if not v:
+            self.v = pg.Vector2(0, 0)
+        else:
+            self.v = v
+        
+        if not r:
+            self.r = m / 1000
+        else:
+            self.r = r
+        
+        self.color = (255 * ran.random(), 255 * ran.random(), 255 * ran.random())
+        self.maxSpeed = maxSp
+        self.S = 3.1415 * self.r ** 2
     
     def accelerate(self, f: pg.Vector2) -> None:
         self.acc = f / self.mass
     
     def move(self) -> None:
+        if self.v.length() > self.maxSpeed:
+            self.v.scale_to_length(self.maxSpeed)
+        
+        self.v = self.v 
         self.pos += self.v
         self.v += self.acc
 
@@ -155,13 +179,58 @@ class Circle():
             self.pos.x = WIDTH - self.r
         
         if self.pos.y + self.r >= HEIGHT:
-            self.pos.y = self.r
-        if self.pos.y <= 0:
             self.pos.y = HEIGHT - self.r
+            self.v.y *= -1
+        if self.pos.y - self.r <= 0:
+            self.pos.y = self.r
+            self.v.y *= -1
         
     def drawSpeed(self, scr) -> None:
-        scr.draw.line(self.pos, self.pos + self.v, color=RED)
+        scr.draw.line(self.pos, self.pos + self.v * 2, color=RED)
     
-    def draw(self, scr) -> None:
-        scr.draw.circle(pos=self.pos, radius=self.r, color=self.color)
+    def draw(self, scr, filled: bool) -> None:
+        if filled:
+            scr.draw.filled_circle(pos=self.pos, radius=self.r, color=self.color)
+        else:
+            scr.draw.circle(pos=self.pos, radius=self.r, color=self.color)
     
+    def getS(self) -> float:
+        return self.S
+    
+    def getSpeed(self) -> pg.Vector2:
+        return self.v
+
+    def decreaseSpeed(self, n: float) -> None:
+        self.v /= n
+
+def createCircles(n: int, maxS):
+    l = []
+    for _ in range(n):
+        l.append(Circle(pg.Vector2(WIDTH / 2, HEIGHT / 2),
+                                  ran.randint(10000, 100000),
+                                  maxS,
+                                  pg.Vector2(ran.randint(-10, 10), ran.randint(-30, 5)),
+                                  5))
+    return l
+
+class livingCircle(Circle):
+    def __init__(self, pos: pg.Vector2, m: int, maxSp: int, v: pg.Vector2 = None, r: int = None) -> None:
+        super().__init__(pos, m, maxSp, v=v, r=r)
+        self.lifeTime = ran.randint(0, 25)
+        self.color = (self.lifeTime * 10, self.lifeTime * 10, self.lifeTime * 10)
+    
+    def update(self) -> None:
+        self.lifeTime -= 1
+    
+    def isAlive(self) -> bool:
+        return self.lifeTime > 0
+
+def createLivingCircles(n: int, maxS):
+    l = []
+    for _ in range(n):
+        l.append(livingCircle(pg.Vector2(WIDTH / 2, HEIGHT / 2),
+                                  ran.randint(10000, 100000),
+                                  maxS,
+                                  pg.Vector2(ran.randint(-10, 10), ran.randint(-30, 5)),
+                                  5))
+    return l
