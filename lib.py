@@ -174,16 +174,18 @@ class Circle():
         self.v += self.acc
 
         if self.pos.x + self.r >= WIDTH:
-            self.pos.x = self.r
-        if self.pos.x <= 0:
             self.pos.x = WIDTH - self.r
+            self.v.x *= -1
+        if self.pos.x <= 0:
+            self.pos.x = self.r
+            self.v.x *= -1
         
         if self.pos.y + self.r >= HEIGHT:
             self.pos.y = HEIGHT - self.r
-            self.v.y *= -1
+            #self.v.y *= -1
         if self.pos.y - self.r <= 0:
             self.pos.y = self.r
-            self.v.y *= -1
+            #self.v.y *= -1
         
     def drawSpeed(self, scr) -> None:
         scr.draw.line(self.pos, self.pos + self.v * 2, color=RED)
@@ -203,34 +205,50 @@ class Circle():
     def decreaseSpeed(self, n: float) -> None:
         self.v /= n
 
-def createCircles(n: int, maxS):
+def createLivingCircles(n: int, maxS: int, color: tuple, pos: pg.Vector2 = None, rad: int = None) -> list:
     l = []
+    if not pos:
+        pos = pg.Vector2(WIDTH / 2, HEIGHT / 2)
+    
+    if not rad:
+        rad = ran.randint(5, 15)
+    
     for _ in range(n):
-        l.append(Circle(pg.Vector2(WIDTH / 2, HEIGHT / 2),
-                                  ran.randint(10000, 100000),
-                                  maxS,
-                                  pg.Vector2(ran.randint(-10, 10), ran.randint(-30, 5)),
-                                  5))
+        l.append(Circle(pos,
+                        ran.randint(10000, 100000),
+                        maxS,
+                        color,
+                        pg.Vector2(ran.randint(-10, 10), ran.randint(-30, 5)),
+                        rad))
     return l
 
 class livingCircle(Circle):
-    def __init__(self, pos: pg.Vector2, m: int, maxSp: int, v: pg.Vector2 = None, r: int = None) -> None:
+    def __init__(self, pos: pg.Vector2, m: int, maxSp: int, c: tuple = None, v: pg.Vector2 = None, r: int = None) -> None:
         super().__init__(pos, m, maxSp, v=v, r=r)
-        self.lifeTime = ran.randint(0, 25)
-        self.color = (self.lifeTime * 10, self.lifeTime * 10, self.lifeTime * 10)
+        self.lifeTime = ran.randint(0, 50)
+        if not c:
+            c = (255 * ran.random(), 0, 0)
+        self.color = c
     
     def update(self) -> None:
-        self.lifeTime -= 1
+        self.r -= 0.2
     
     def isAlive(self) -> bool:
-        return self.lifeTime > 0
+        return self.r > 0
 
-def createLivingCircles(n: int, maxS):
+def createLivingCircles(n: int, maxS: int, c: tuple = None, pos: pg.Vector2 = None, rad: int = None) -> list:
     l = []
+    if not pos:
+        pos = pg.Vector2(WIDTH / 2, HEIGHT / 2)
+    
+    if not rad:
+        rad = ran.randint(5, 15)
+
     for _ in range(n):
-        l.append(livingCircle(pg.Vector2(WIDTH / 2, HEIGHT / 2),
-                                  ran.randint(10000, 100000),
-                                  maxS,
-                                  pg.Vector2(ran.randint(-10, 10), ran.randint(-30, 5)),
-                                  5))
+        l.append(livingCircle(pos,
+                              ran.randint(10000, 100000),
+                              maxS,
+                              c,
+                              pg.Vector2(ran.randint(-20, 20), ran.randint(-30, 5)),
+                              rad))
     return l
