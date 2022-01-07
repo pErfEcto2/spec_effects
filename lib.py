@@ -161,6 +161,7 @@ class Circle():
         self.color = (255 * ran.random(), 255 * ran.random(), 255 * ran.random())
         self.maxSpeed = maxSp
         self.S = 3.1415 * self.r ** 2
+        #self.img = None
     
     def accelerate(self, f: pg.Vector2) -> None:
         self.acc = f / self.mass
@@ -195,6 +196,12 @@ class Circle():
             scr.draw.filled_circle(pos=self.pos, radius=self.r, color=self.color)
         else:
             scr.draw.circle(pos=self.pos, radius=self.r, color=self.color)
+            
+        
+    def loadImg(self, path, scaleTo: tuple = None) -> None:
+        self.img = pg.image.load(path).convert_alpha()
+        if scaleTo:
+            self.img = pg.transform.scale(self.img, scaleTo)
     
     def getS(self) -> float:
         return self.S
@@ -205,7 +212,7 @@ class Circle():
     def decreaseSpeed(self, n: float) -> None:
         self.v /= n
 
-def createLivingCircles(n: int, maxS: int, color: tuple, pos: pg.Vector2 = None, rad: int = None) -> list:
+def createCircles(n: int, maxS: int, color: tuple, pos: pg.Vector2 = None, rad: int = None) -> list:
     l = []
     if not pos:
         pos = pg.Vector2(WIDTH / 2, HEIGHT / 2)
@@ -223,20 +230,29 @@ def createLivingCircles(n: int, maxS: int, color: tuple, pos: pg.Vector2 = None,
     return l
 
 class livingCircle(Circle):
-    def __init__(self, pos: pg.Vector2, m: int, maxSp: int, c: tuple = None, v: pg.Vector2 = None, r: int = None) -> None:
+    def __init__(self, pos: pg.Vector2, m: int, maxSp: int, c: tuple = None, v: pg.Vector2 = None, r: int = None, path: str = None) -> None:
         super().__init__(pos, m, maxSp, v=v, r=r)
-        self.lifeTime = ran.randint(0, 50)
         if not c:
             c = (255 * ran.random(), 0, 0)
         self.color = c
+        self.scaleTo = (32, 32)
+        self.lifes = 255
+
+        if path:
+            super().loadImg(path, self.scaleTo)
     
     def update(self) -> None:
-        self.r -= 0.2
+        self.lifes -= 5
     
     def isAlive(self) -> bool:
-        return self.r > 0
+        return self.lifes > 0
 
-def createLivingCircles(n: int, maxS: int, c: tuple = None, pos: pg.Vector2 = None, rad: int = None) -> list:
+    def draw(self, scr) -> None:
+        copyImg = self.img.copy()
+        copyImg.set_alpha(self.lifes)
+        scr.surface.blit(copyImg, self.pos)
+
+def createLivingCircles(n: int, maxS: int, path: str, c: tuple = None, pos: pg.Vector2 = None, rad: int = None) -> list:
     l = []
     if not pos:
         pos = pg.Vector2(WIDTH / 2, HEIGHT / 2)
@@ -246,9 +262,10 @@ def createLivingCircles(n: int, maxS: int, c: tuple = None, pos: pg.Vector2 = No
 
     for _ in range(n):
         l.append(livingCircle(pos,
-                              ran.randint(10000, 100000),
+                              ran.randint(10, 100),
                               maxS,
                               c,
-                              pg.Vector2(ran.randint(-20, 20), ran.randint(-30, 5)),
-                              rad))
+                              pg.Vector2(ran.randint(-5, 5), ran.randint(-5, 5)),
+                              rad,
+                              path))
     return l

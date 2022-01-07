@@ -4,29 +4,33 @@ import pgzero as pgz
 import pgzrun as pgr
 import pygame as pg
 import lib
-from lib import HEIGHT, WIDTH
+from lib import HEIGHT, WHITE, WIDTH
 import sys
 import time as t
 
-a = 100000 # accelerate
-g = 10000 # gravity
-maxSpeed = 5
-n = 10 # number of fires
+a = 5 # accelerate
+g = 5 # gravity
+maxSpeed = 4
+n = 2 # number of smokes
 p = 0.01 # density of an air
 k = 1.1 # air slower koef
-r = 30 # radius of a smoke
-c = (7, 7, 7) # color of a smoke
-timeToSpawn = 0.02
-f = pg.Vector2(0, -50000)
+r = 20 # radius of a smoke
+c = pg.Color(20, 20, 20) # color of a smoke
+timeToSpawn = 0
+f = pg.Vector2(0, -50)
 onPause = False
+whitePath = "src/texture.png"
+firePath = "src/fire.png"
 
 last = t.time()
 
-fires = lib.createLivingCircles(n, maxSpeed, pos=pg.mouse.get_pos())
-smokes = lib.createLivingCircles(n, maxSpeed, c=c, pos=pg.mouse.get_pos(), rad=r)
+fires = lib.createLivingCircles(n, maxSpeed, pos=pg.mouse.get_pos(), path=whitePath)
+smokes = lib.createLivingCircles(n, maxSpeed, c=c, pos=pg.mouse.get_pos(), rad=r, path=whitePath)
+
+bg = pg.image.load("src/img.jpg")
 
 def on_key_down(key):
-    global f, a, fires, n, onPause, smokes, r, c
+    global f, a, onPause, f
     if key == pgz.keyboard.keys.A:
         f.x += -a
     if key == pgz.keyboard.keys.D:
@@ -37,6 +41,8 @@ def on_key_down(key):
         f.y += g
     if key == pgz.keyboard.keys.SPACE:
         onPause = not onPause
+    if key == pgz.keyboard.keys.R:
+        f = pg.Vector2(0, -50)
 
 def update():
     global f, fires, n, maxSpeed, last, timeToSpawn, smokes, c
@@ -45,10 +51,10 @@ def update():
         return
     now = t.time()
     if now - last > timeToSpawn:
-        for fire in lib.createLivingCircles(n, maxSpeed, pos=pg.mouse.get_pos()):
+        for fire in lib.createLivingCircles(n, maxSpeed, pos=pg.mouse.get_pos(), path=whitePath):
             fires.append(fire)
         
-        for smoke in lib.createLivingCircles(n, maxSpeed, c=c, pos=pg.mouse.get_pos(), rad=r):
+        for smoke in lib.createLivingCircles(n, maxSpeed, c=c, pos=pg.mouse.get_pos(), rad=r, path=whitePath):
             smokes.append(smoke)
         
         last = now
@@ -77,11 +83,12 @@ def update():
 
 def draw():
     global fires, smokes
-    screen.fill((0, 0, 0))
+    screen.fill(WHITE)
+    screen.surface.blit(source=bg, dest=(0, 0))
 
     for smoke in smokes:
-        smoke.draw(screen, True)
+        smoke.draw(screen)
     for fire in fires:
-        fire.draw(screen, True)
+        fire.draw(screen)
 
 pgr.go()
