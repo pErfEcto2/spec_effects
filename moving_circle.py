@@ -11,23 +11,23 @@ import time as t
 a = 5 # accelerate
 g = 5 # gravity
 maxSpeed = 4
-n = 2 # number of smokes
+n = 10 # number of smokes
 p = 0.01 # density of an air
 k = 1.1 # air slower koef
-r = 20 # radius of a smoke
+r = 5 # radius of a smoke
 c = pg.Color(20, 20, 20) # color of a smoke
-timeToSpawn = 0
-f = pg.Vector2(0, -50)
+timeToSpawn = 0.5
+f = pg.Vector2(0, 0)
 onPause = False
 whitePath = "src/texture.png"
 firePath = "src/fire.png"
+surface = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
+speedToDestroy = 5
 
 last = t.time()
 
-fires = lib.createLivingCircles(n, maxSpeed, pos=pg.mouse.get_pos(), path=whitePath)
-smokes = lib.createLivingCircles(n, maxSpeed, c=c, pos=pg.mouse.get_pos(), rad=r, path=whitePath)
-
-bg = pg.image.load("src/img.jpg")
+fires = lib.createLivingCircles(n, maxSpeed, pos=pg.mouse.get_pos(), rad=r, speedToDestroy=speedToDestroy)
+smokes = lib.createLivingCircles(n, maxSpeed, pos=pg.mouse.get_pos(), rad=r)
 
 def on_key_down(key):
     global f, a, onPause, f
@@ -51,10 +51,10 @@ def update():
         return
     now = t.time()
     if now - last > timeToSpawn:
-        for fire in lib.createLivingCircles(n, maxSpeed, pos=pg.mouse.get_pos(), path=whitePath):
+        for fire in lib.createLivingCircles(n, maxSpeed, pos=pg.mouse.get_pos(), rad=r):
             fires.append(fire)
         
-        for smoke in lib.createLivingCircles(n, maxSpeed, c=c, pos=pg.mouse.get_pos(), rad=r, path=whitePath):
+        for smoke in lib.createLivingCircles(n, maxSpeed, pos=pg.mouse.get_pos(), rad=r):
             smokes.append(smoke)
         
         last = now
@@ -81,14 +81,17 @@ def update():
 
     print(len(fires) + len(smokes))
 
+    surface = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
+
 def draw():
-    global fires, smokes
-    screen.fill(WHITE)
-    screen.surface.blit(source=bg, dest=(0, 0))
+    global fires, smokes, surface
+    surface.fill((0, 0, 0, 25))
 
     for smoke in smokes:
         smoke.draw(screen)
     for fire in fires:
         fire.draw(screen)
+    
+    screen.blit(surface, pos=(0, 0))
 
 pgr.go()

@@ -170,23 +170,23 @@ class Circle():
         if self.v.length() > self.maxSpeed:
             self.v.scale_to_length(self.maxSpeed)
         
-        self.v = self.v 
+        #self.v = self.v 
         self.pos += self.v
-        self.v += self.acc
+        #self.v += self.acc
 
-        if self.pos.x + self.r >= WIDTH:
-            self.pos.x = WIDTH - self.r
-            self.v.x *= -1
-        if self.pos.x <= 0:
-            self.pos.x = self.r
-            self.v.x *= -1
-        
-        if self.pos.y + self.r >= HEIGHT:
-            self.pos.y = HEIGHT - self.r
-            #self.v.y *= -1
-        if self.pos.y - self.r <= 0:
-            self.pos.y = self.r
-            #self.v.y *= -1
+        #if self.pos.x + self.r >= WIDTH:
+        #    self.pos.x = WIDTH - self.r
+        #    #self.v.x *= -1
+        #if self.pos.x <= 0:
+        #    self.pos.x = self.r
+        #    #self.v.x *= -1
+        #
+        #if self.pos.y + self.r >= HEIGHT:
+        #    self.pos.y = HEIGHT - self.r
+        #    self.v.y *= -1
+        #if self.pos.y - self.r <= 0:
+        #    self.pos.y = self.r
+        #    self.v.y *= -1
         
     def drawSpeed(self, scr) -> None:
         scr.draw.line(self.pos, self.pos + self.v * 2, color=RED)
@@ -230,29 +230,37 @@ def createCircles(n: int, maxS: int, color: tuple, pos: pg.Vector2 = None, rad: 
     return l
 
 class livingCircle(Circle):
-    def __init__(self, pos: pg.Vector2, m: int, maxSp: int, c: tuple = None, v: pg.Vector2 = None, r: int = None, path: str = None) -> None:
+    def __init__(self, pos: pg.Vector2, m: int, maxSp: int, scale: tuple, c: tuple = None, v: pg.Vector2 = None, r: int = None, path: str = None, speedToDestroy: float = 5) -> None:
         super().__init__(pos, m, maxSp, v=v, r=r)
         if not c:
             c = (255 * ran.random(), 0, 0)
         self.color = c
-        self.scaleTo = (32, 32)
+        self.scaleTo = scale
         self.lifes = 255
+        self.speedToDestriy = speedToDestroy
 
         if path:
             super().loadImg(path, self.scaleTo)
+            self.parentHasImg = True
+        else:
+            self.parentHasImg = False
     
     def update(self) -> None:
-        self.lifes -= 5
+        self.lifes -= self.speedToDestriy
+        self.r -= 0.05
     
     def isAlive(self) -> bool:
         return self.lifes > 0
 
     def draw(self, scr) -> None:
-        copyImg = self.img.copy()
-        copyImg.set_alpha(self.lifes)
-        scr.surface.blit(copyImg, self.pos)
+        if self.parentHasImg:
+            copyImg = self.img.copy()
+            copyImg.set_alpha(self.lifes)
+            scr.surface.blit(copyImg, self.pos)
+        else:
+            super().draw(scr, True)
 
-def createLivingCircles(n: int, maxS: int, path: str, c: tuple = None, pos: pg.Vector2 = None, rad: int = None) -> list:
+def createLivingCircles(n: int, maxS: int, speedToDestroy: float, path: str = None, c: tuple = None, pos: pg.Vector2 = None, rad: int = None, v: pg.Vector2 = None) -> list:
     l = []
     if not pos:
         pos = pg.Vector2(WIDTH / 2, HEIGHT / 2)
@@ -261,11 +269,21 @@ def createLivingCircles(n: int, maxS: int, path: str, c: tuple = None, pos: pg.V
         rad = ran.randint(5, 15)
 
     for _ in range(n):
-        l.append(livingCircle(pos,
-                              ran.randint(10, 100),
-                              maxS,
-                              c,
-                              pg.Vector2(ran.randint(-5, 5), ran.randint(-5, 5)),
-                              rad,
-                              path))
+        l.append(livingCircle(pos=pos,
+                              m=ran.randint(10, 100),
+                              maxSp=maxS,
+                              scale=(rad, rad),
+                              c=c,
+                              v=pg.Vector2(ran.randint(-5, 5), ran.randint(-5, 5)),
+                              r=rad,
+                              path=path,
+                              speedToDestroy=speedToDestroy))
     return l
+
+def writeTiFile(path: str, message: str) -> None:
+    with open(path, "w") as f:
+        f.write(message)
+
+def readFromFile(path) -> str:
+    with open(path, "r") as f:
+        return f.read()

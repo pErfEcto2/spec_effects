@@ -1,60 +1,88 @@
-import pgzrun as pgr
-import pgzero as pgz
-import pygame as pg
 import random as ran
-from lib import WIDTH, HEIGHT, WHITE, GREEN, RED
+from typing import Sized
+import pgzero as pgz
+import pgzrun as pgr
+import pygame as pg
 import lib
+from lib import HEIGHT, WHITE, WIDTH
+import sys
+import time as t
 
-n = 2
-frameLimit = 20
+a = 2 # accelerate
+g = 2 # gravity
+maxSpeed = 10
+n = 50 # number of smokes
+p = 0.01 # density of an air
+k = 1.1 # air slower koef
+r = 3 # radius of a smoke
+c = pg.Color(20, 20, 20) # color of a smoke
+timeToSpawn = 0.5
+f = pg.Vector2(0, 2)
+onPause = False
+whitePath = "src/texture.png"
+surface = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
+speedToDestroy = 5
 
-def createPartExpl(particles, num, pos=None):
-    if not pos:
-        pos = pg.Vector2(WIDTH / 2 + ran.randint(-5, 5), HEIGHT / 2 + ran.randint(-5, 5))
-    for _ in range(num):
-        particles.append(lib.Walker2D(pos, 5, pg.Vector2(WIDTH, HEIGHT)))
+last = t.time()
 
-fireParticles = []
+#fires = lib.createLivingCircles(n, maxSpeed, speedToDestroy, pos=pg.mouse.get_pos(), rad=r)
 fires = []
 
-def on_key_down():
-    global fires, n
-    fires.append(lib.Walker2D(pg.Vector2(WIDTH * ran.random(), HEIGHT), 10, pg.Vector2(WIDTH, HEIGHT + 200),
-                                  pg.Vector2(ran.randint(-5, 5), ran.randint(10, 20)), False))
+bg = pg.image.load("src/img.jpg")
+
+def on_key_down(key):
+    global f, a, onPause, f
+    if key == pgz.keyboard.keys.A:
+        f.x += -a
+    if key == pgz.keyboard.keys.D:
+        f.x += a
+    if key == pgz.keyboard.keys.W:
+        f.y += -g
+    if key == pgz.keyboard.keys.S:
+        f.y += g
+    if key == pgz.keyboard.keys.SPACE:
+        onPause = not onPause
+    if key == pgz.keyboard.keys.R:
+        f = pg.Vector2(0, 2)
 
 def update():
-    global fireParticles, frameLimit, fires, n
+    global f, fires, n, maxSpeed, last, timeToSpawn, speedToDestroy
 
-    if ran.randint(0, 10) == 0:
-        fires.append(lib.Walker2D(pg.Vector2(WIDTH * ran.random(), HEIGHT), n, pg.Vector2(WIDTH, HEIGHT + 200),
-                                  pg.Vector2(ran.randint(-5, 5), ran.randint(10, 20)), False))
+    if onPause:
+        return
+    
+    #now = t.time()
+    #if now - last > timeToSpawn:
+    #    for fire in lib.createLivingCircles(n, maxSpeed, speedToDestroy, pos=pg.mouse.get_pos(), rad=r):
+    #        fires.append(fire)
+    #    
+    #    last = now
 
-    for i, expl in enumerate(fires):
-        if expl.getVel().y <= 0:
-            expl.move()
+    if ran.randint(0, 19) == 0:
+        for fire in lib.createLivingCircles(1, maxSpeed, speedToDestroy, pos=pg.Vector2(WIDTH * ran.random(), HEIGHT - r), rad=r):
+            fires.append(fire)
+
+    toDelete = []
+    for i, fire in enumerate(fires):
+        if not fire.isAlive():
+            toDelete.append(i)
         else:
-            createPartExpl(fireParticles, 10, expl.getPos())
-            fires.pop(i)
-    
-    #for j, fire in enumerate(fireParticles):
-    #    if fire.getFrames() < frameLimit:
-    #        fire.move()
-    #    else:
-    #        fireParticles.pop(j)
-    
-    print(len(fires), len(fireParticles))
+            fire.update()
+            fire.accelerate(f)
+            fire.move()
+    fires = [fires[i] for i in range(len(fires)) if i not in toDelete]
+
+    print(len(fires))
+
+    surface = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
 
 def draw():
-    global fires, fireParticles
-    screen.fill((0, 0, 0))
+    global fires, smokes, surface
+    surface.fill((0, 0, 0, 25))
 
-    print(len(fires), len(fireParticles))
-    
     for fire in fires:
         fire.draw(screen)
     
-    for part in fireParticles:
-        part.draw(screen)
-        
+    screen.blit(surface, pos=(0, 0))
 
 pgr.go()
