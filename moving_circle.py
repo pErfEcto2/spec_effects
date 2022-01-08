@@ -8,26 +8,26 @@ from lib import HEIGHT, WHITE, WIDTH
 import sys
 import time as t
 
-a = 5 # accelerate
-g = 5 # gravity
+a = 10 # accelerate
+g = 10 # gravity
 maxSpeed = 4
 n = 10 # number of smokes
 p = 0.01 # density of an air
 k = 1.1 # air slower koef
 r = 5 # radius of a smoke
 c = pg.Color(20, 20, 20) # color of a smoke
-timeToSpawn = 0.5
+timeToSpawn = 0
 f = pg.Vector2(0, 0)
 onPause = False
 whitePath = "src/texture.png"
 firePath = "src/fire.png"
 surface = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
-speedToDestroy = 5
+speedToDestroy = 0.1
 
 last = t.time()
 
-fires = lib.createLivingCircles(n, maxSpeed, pos=pg.mouse.get_pos(), rad=r, speedToDestroy=speedToDestroy)
-smokes = lib.createLivingCircles(n, maxSpeed, pos=pg.mouse.get_pos(), rad=r)
+fires = lib.createLivingCircles(n, maxSpeed, pos=pg.Vector2(WIDTH / 2, HEIGHT / 2), rad=r, speedToDestroy=speedToDestroy)
+smokes = lib.createLivingCircles(n, maxSpeed, pos=pg.Vector2(WIDTH / 2, HEIGHT / 2), rad=r, speedToDestroy=speedToDestroy)
 
 def on_key_down(key):
     global f, a, onPause, f
@@ -45,16 +45,16 @@ def on_key_down(key):
         f = pg.Vector2(0, -50)
 
 def update():
-    global f, fires, n, maxSpeed, last, timeToSpawn, smokes, c
+    global f, fires, n, maxSpeed, last, timeToSpawn, smokes, c, speedToDestroy
 
     if onPause:
         return
     now = t.time()
     if now - last > timeToSpawn:
-        for fire in lib.createLivingCircles(n, maxSpeed, pos=pg.mouse.get_pos(), rad=r):
+        for fire in lib.createLivingCircles(n, maxSpeed, pos=pg.Vector2(WIDTH / 2, HEIGHT / 2), rad=r, speedToDestroy=speedToDestroy):
             fires.append(fire)
         
-        for smoke in lib.createLivingCircles(n, maxSpeed, pos=pg.mouse.get_pos(), rad=r):
+        for smoke in lib.createLivingCircles(n, maxSpeed, pos=pg.Vector2(WIDTH / 2, HEIGHT / 2), rad=r, speedToDestroy=speedToDestroy):
             smokes.append(smoke)
         
         last = now
@@ -80,8 +80,6 @@ def update():
     smokes = [smokes[i] for i in range(len(smokes)) if i not in toDelete]
 
     print(len(fires) + len(smokes))
-
-    surface = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
 
 def draw():
     global fires, smokes, surface

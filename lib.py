@@ -170,10 +170,9 @@ class Circle():
         if self.v.length() > self.maxSpeed:
             self.v.scale_to_length(self.maxSpeed)
         
-        #self.v = self.v 
         self.pos += self.v
+        
         #self.v += self.acc
-
         #if self.pos.x + self.r >= WIDTH:
         #    self.pos.x = WIDTH - self.r
         #    #self.v.x *= -1
@@ -183,10 +182,10 @@ class Circle():
         #
         #if self.pos.y + self.r >= HEIGHT:
         #    self.pos.y = HEIGHT - self.r
-        #    self.v.y *= -1
+        #    #self.v.y *= -1
         #if self.pos.y - self.r <= 0:
         #    self.pos.y = self.r
-        #    self.v.y *= -1
+        #    #self.v.y *= -1
         
     def drawSpeed(self, scr) -> None:
         scr.draw.line(self.pos, self.pos + self.v * 2, color=RED)
@@ -236,7 +235,7 @@ class livingCircle(Circle):
         self.color = c
         self.scaleTo = scale
         self.lifes = 255
-        self.speedToDestriy = speedToDestroy
+        self.speedToDestroy = speedToDestroy
 
         if path:
             super().loadImg(path, self.scaleTo)
@@ -245,11 +244,11 @@ class livingCircle(Circle):
             self.parentHasImg = False
     
     def update(self) -> None:
-        self.lifes -= self.speedToDestriy
-        self.r -= 0.05
+        self.lifes -= self.speedToDestroy
+        self.r -= self.speedToDestroy / 3.5
     
     def isAlive(self) -> bool:
-        return self.lifes > 0
+        return self.lifes > 0 and self.r > 0
 
     def draw(self, scr) -> None:
         if self.parentHasImg:
