@@ -161,6 +161,8 @@ def draw():
         screen.draw.text("CONTROLS: UP ARROW - MOVE UP, DOWN ARROW - MOVE DOWN", (WIDTH / 2 - 450, HEIGHT / 2 - 10), fontsize=40)
         screen.draw.text("PRESS ENTER TO START", (WIDTH / 2 - 180, HEIGHT / 2 + 30), fontsize=40)
         screen.draw.text("PRESS ESCAPE TO EXIT", (WIDTH / 2 - 180, HEIGHT / 2 + 70), fontsize=40)
+        screen.draw.text("IN GAME: PRESS S TO HIDE OR SHOW FIRE AND TRACKS", (110, HEIGHT - 140), fontsize=40)
+        screen.draw.text("PRESS SPACE TO STOP OR CONTINUE GAME", (190, HEIGHT - 100), fontsize=40)
 
     elif score[0] >= maxScore:
         screen.draw.text("YOU WIN", (WIDTH / 2 - 110, HEIGHT / 2 - 50), fontsize=70, color=GREEN)
