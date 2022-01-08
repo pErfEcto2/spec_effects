@@ -11,8 +11,8 @@ r = 10 # circle radius
 score = pg.Vector2(0, 0)
 k = 20 # decrease circle vertical acceleration
 maxScore = 10
-start = True
-run = False
+start = True # show start page
+run = False # run the game
 rectSize = pg.Vector2(10, 150)
 
 userRectPos = pg.Vector2(5, HEIGHT / 2 - rectSize[1] / 2)
@@ -21,7 +21,7 @@ moveUp = False
 win = False
 lose = False
 onPause = False
-show = True
+show = True # show a fire and tracks
 
 botRectPos = pg.Vector2(WIDTH - rectSize[0] - 5, HEIGHT / 2 - rectSize[1] / 2)
 
