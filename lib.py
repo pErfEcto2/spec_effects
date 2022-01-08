@@ -196,8 +196,7 @@ class Circle():
             scr.draw.filled_circle(pos=self.pos, radius=self.r, color=self.color)
         else:
             scr.draw.circle(pos=self.pos, radius=self.r, color=self.color)
-            
-        
+                 
     def loadImg(self, path, scaleTo: tuple = None) -> None:
         self.img = pg.image.load(path).convert_alpha()
         if scaleTo:

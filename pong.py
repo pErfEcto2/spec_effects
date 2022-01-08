@@ -21,18 +21,20 @@ moveUp = False
 win = False
 lose = False
 onPause = False
-showFire = True
+show = True
 
 botRectPos = pg.Vector2(WIDTH - rectSize[0] - 5, HEIGHT / 2 - rectSize[1] / 2)
 
-circlePosition = pg.Vector2(WIDTH / 2, HEIGHT / 2)
+circlePos = pg.Vector2(WIDTH / 2, HEIGHT / 2)
 
 circleVel = pg.Vector2(maxSpeed, ran.randint(-maxSpeed, maxSpeed))
 
 fires = []
 
+surface = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
+
 def on_key_down(key):
-    global moveDown, moveUp, win, score, lose, circlePosition, circleVel, start, run, userRectPos, botRectPos, onPause, showFire
+    global moveDown, moveUp, win, score, lose, circlePos, circleVel, start, run, userRectPos, botRectPos, onPause, show
     if key == pgz.keyboard.keys.UP and not (win or lose):
         moveUp = True
         moveDown = False
@@ -47,7 +49,7 @@ def on_key_down(key):
             lose = False
             run = True
             score = pg.Vector2(0, 0)
-            circlePosition = pg.Vector2(WIDTH / 2, HEIGHT / 2)
+            circlePos = pg.Vector2(WIDTH / 2, HEIGHT / 2)
             circleVel = pg.Vector2(maxSpeed, ran.randint(-maxSpeed, maxSpeed))
             userRectPos = pg.Vector2(5, HEIGHT / 2 - rectSize[1] / 2)
             botRectPos = pg.Vector2(WIDTH - rectSize[0] - 5, HEIGHT / 2 - rectSize[1] / 2)  
@@ -65,7 +67,7 @@ def on_key_down(key):
         onPause = not onPause
     
     elif key == pgz.keyboard.keys.S:
-        showFire = not showFire
+        show = not show
 
 def on_key_up(key):
     global moveDown, moveUp
@@ -74,16 +76,16 @@ def on_key_up(key):
         moveDown = False
 
 def update():
-    global circleVel, circlePosition, userRectPos, moveDown, moveUp, r, maxSpeed, k, botMaxSpeed, fires, onPause, run
+    global circleVel, circlePos, userRectPos, moveDown, moveUp, r, maxSpeed, k, botMaxSpeed, fires, onPause, run, surface
     if run and not onPause:
         userRect = pgz.rect.Rect(userRectPos, rectSize)
         botRect = pgz.rect.Rect(botRectPos, rectSize)
 
-        circlePosition += circleVel
+        circlePos += circleVel
 
-        p = circlePosition.copy() - pg.Vector2(40, 40)
+        p = circlePos.copy() - pg.Vector2(30, 30)
         
-        for fire in lib.createLivingCircles(1, 5, 5, "src/fire.png", pos=p, rad=80):
+        for fire in lib.createLivingCircles(1, 5, 5, "src/fire.png", pos=p, rad=60):
             fires.append(fire)
         
         toDelete = []
@@ -105,46 +107,50 @@ def update():
         if userRectPos[1] + rectSize[1] >= HEIGHT:
             userRectPos[1] = HEIGHT - rectSize[1]
 
-        dy = circlePosition[1] - r - botRectPos[1] - rectSize[1] / 2
+        dy = circlePos[1] - r - botRectPos[1] - rectSize[1] / 2
         if dy > 0:
             botRectPos[1] += botMaxSpeed
         elif dy < 0:
             botRectPos[1] -= botMaxSpeed
-
 
         if botRectPos[1] <= 0:
             botRectPos[1] = 0
         if botRectPos[1] + rectSize[1] >= HEIGHT:
             botRectPos[1] = HEIGHT - rectSize[1]
 
-        if userRect.colliderect(pgz.rect.Rect(circlePosition, (2 * r, 2 * r))):
+        if userRect.colliderect(pgz.rect.Rect(circlePos, (2 * r, 2 * r))):
             circleVel[0] *= -1
-            circlePosition[0] = userRectPos[0] + rectSize[0] + 5
-            dy = (circlePosition[1] + r) - (userRectPos[1] + rectSize[1] / 2) 
+            circlePos[0] = userRectPos[0] + rectSize[0] + 5
+            dy = (circlePos[1] + r) - (userRectPos[1] + rectSize[1] / 2) 
             circleVel[1] += dy / k
 
-        if  botRect.colliderect(pgz.rect.Rect(circlePosition, (2 * r, 2 * r))):
+        if  botRect.colliderect(pgz.rect.Rect(circlePos, (2 * r, 2 * r))):
             circleVel[0] *= -1
-            circlePosition[0] = botRectPos[0] - 2 * r + 5
-            dy = (circlePosition[1] + r) - (userRectPos[1] + rectSize[1] / 2) 
+            circlePos[0] = botRectPos[0] - 2 * r + 5
+            dy = (circlePos[1] + r) - (userRectPos[1] + rectSize[1] / 2) 
             circleVel[1] += dy / k
 
-        if circlePosition[0] - r <= 0:
+        if circlePos[0] - r <= 0:
             score[1] += 1
-            circlePosition = pg.Vector2(WIDTH / 2, HEIGHT / 2)
+            circlePos = pg.Vector2(WIDTH / 2, HEIGHT / 2)
             circleVel = pg.Vector2(maxSpeed, ran.randint(-maxSpeed, maxSpeed))
 
-        if circlePosition[0] + r >= WIDTH:
+        if circlePos[0] + r >= WIDTH:
             score[0] += 1
-            circlePosition = pg.Vector2(WIDTH / 2, HEIGHT / 2)
+            circlePos = pg.Vector2(WIDTH / 2, HEIGHT / 2)
             circleVel = pg.Vector2(maxSpeed, ran.randint(-maxSpeed, maxSpeed))
 
-        if circlePosition[1] - r <= 0 or circlePosition[1] + r >= HEIGHT:
+        if circlePos[1] - r <= 0 or circlePos[1] + r >= HEIGHT:
             circleVel[1] *= -1
 
+        surface = pg.Surface((WIDTH, HEIGHT), pg.SRCALPHA)
+
 def draw():
-    global botRectPos, userRectPos, circlePosition, win, lose, maxScore, start, fires, showFire, run
-    screen.fill((0, 0, 0))
+    global botRectPos, userRectPos, circlePos, win, lose, maxScore, start, fires, show, run, surface
+    if show:
+        surface.fill((0, 0, 0, 40))
+    else:
+        screen.fill((0, 0, 0))
 
     userRect = pgz.rect.Rect(userRectPos, rectSize)
     botRect = pgz.rect.Rect(botRectPos, rectSize)
@@ -174,16 +180,19 @@ def draw():
     
     elif not start:
         
-        screen.draw.filled_circle(pos=circlePosition, radius=r, color=WHITE)
+        screen.draw.filled_circle(pos=circlePos, radius=r, color=WHITE)
 
         screen.draw.filled_rect(userRect, WHITE)
         screen.draw.filled_rect(botRect, WHITE)
 
-        if showFire:
+        if show:
             for fire in fires:
                 fire.draw(screen)
 
         s = f"{int(score[0])}   {int(score[1])}"
         screen.draw.text(s, (WIDTH / 2 - 40, 10), fontsize=40)
+    
+    if show:
+        screen.blit(surface, pos=(0, 0))
 
 pgr.go()
